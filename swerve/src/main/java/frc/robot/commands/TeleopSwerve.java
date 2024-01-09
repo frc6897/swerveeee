@@ -32,7 +32,11 @@ public class TeleopSwerve extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    this.swerveSubsystem.drive(this.driveX, this.driveY, this.rotationX, this.rotationY);
+    this.swerveSubsystem.drive(this.swerveSubsystem.getSwerveModuleStates(this.driveX, this.driveY, this.getRotation()))
+  }
+
+  public void getRotation() {
+    // kyle's field centric logic
   }
 
   // Called once the command ends or is interrupted.

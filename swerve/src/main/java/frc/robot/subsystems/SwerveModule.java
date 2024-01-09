@@ -34,6 +34,9 @@ public class SwerveModule extends SubsystemBase {
 
     this.angleEncoder = angleMotor.getEncoder();
     this.driveEncoder = driveMotor.getEncoder();
+
+    this.configureAngleMotor();
+    this.configureDriveMotor();
   }
 
   public void configureAngleMotor() {
