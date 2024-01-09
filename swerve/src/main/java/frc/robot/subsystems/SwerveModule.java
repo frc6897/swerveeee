@@ -27,8 +27,11 @@ public class SwerveModule extends SubsystemBase {
     this.driveCanId = driveCanId;
     
     this.angleMotor = new CANSparkMax(angleCanId, MotorType.kBrushless);
-    this.angleMotor = new CANSparkMax(driveCanId, MotorType.kBrushless);
-    
+    this.angleMotor.getEncoder().setPositionConversionFactor((2 * Math.PI) / 360);
+
+    this.driveMotor = new CANSparkMax(driveCanId, MotorType.kBrushless);
+    // set the conversion for drive motor
+
     this.angleEncoder = angleMotor.getEncoder();
     this.driveEncoder = driveMotor.getEncoder();
   }
@@ -49,23 +52,21 @@ public class SwerveModule extends SubsystemBase {
     driveMotor.burnFlash();
   }
 
-  private final double MAX_VOLTS = 12; //guessed number
-
-  public void driveWheel(double speed, double angle){
-    driveMotor.set(speed);
-
-    double setpoint = angle * (MAX_VOLTS * 0.5) + (MAX_VOLTS * 0.5);
-
-    if(setpoint < 0){
-      setpoint = MAX_VOLTS + setpoint;
-    }
-    if(setpoint > MAX_VOLTS){
-      setpoint = setpoint - MAX_VOLTS;
-    }
-
-    
+  public void setDriveMotorSpeed(int speed) {
+    this.driveMotor.set(speed);
   }
 
+  public void setAngleMotorSpeed(int speed) {
+    this.angleMotor.set(speed);
+  }
+
+  public double getDriveMotorPosition() {
+    return driveMotor.getEncoder().getPosition();
+  }
+
+  public double getAngleMotorPosition() {
+    return angleMotor.getEncoder().getPosition();
+  }
 
   @Override
   public void periodic() {

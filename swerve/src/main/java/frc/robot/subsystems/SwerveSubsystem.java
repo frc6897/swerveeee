@@ -26,27 +26,10 @@ public class SwerveSubsystem extends SubsystemBase {
   public final double L = 1;
   public final double W = 1;
 
-  public void drive(double x1, double y1, double x2){
-    //x1 and y1 are from the strafing joystick and x2 is from the rotation joystick
-    
-    // double hyp = Math.sqrt((L*L) + (W * W));
-
-    // double a = x1 - x2 * (L / hyp);
-    // double b = x1 + x2 * (L / hyp);
-    // double c = y1 - x2 * (W / hyp);
-    // double d = y1 + x2 * (W / hyp);
-
-    // double backRightSpeed = Math.sqrt((a * a) + (d * d));
-    // double backLeftSpeed = Math.sqrt((a * a) + (c * c));
-    // double frontRightSpeed = Math.sqrt((b * b) + (d * d));
-    // double frontLeftSpeed = Math.sqrt((b * b) + (c * c));
-
-    // double backRightAngle = Math.atan2(a, d);
-    // double backLeftAngle = Math.atan2(a, d);
-    // double frontRightangle = Math.atan2(a, d);
-    // double frontLeftAngle = Math.atan2(a, d);
+  public void drive(int driveX, int driveY, int rotationX, int rotationY){
 
   }
+  
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

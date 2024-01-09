@@ -21,12 +21,11 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class RobotContainer {
   public static final PS4Controller controller = new PS4Controller(0);
 
-
   public SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    swerveSubsystem.setDefaultCommand(new TeleopSwerve(controller.getRightX(), controller.getRightY(), controller.getLeftX()));
+    swerveSubsystem.setDefaultCommand(new TeleopSwerve(controller::getLeftX, controller::getLeftY, controller::getRightX, controller::getRightY));
     // Configure the button bindings
     configureButtonBindings();
   }

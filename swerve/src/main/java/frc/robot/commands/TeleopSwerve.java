@@ -5,17 +5,22 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.SwerveSubsystem;
 
 public class TeleopSwerve extends CommandBase {
+  public SwerveSubsystem swerveSubsystem;
   public int driveX;
   public int driveY;
-  public int rotation;
+  public int rotationX;
+  public int rotationY;
 
   /** Creates a new TeleopSwerve. */
-  public TeleopSwerve(int driveX, int driveY, int rotation) {
+  public TeleopSwerve(SwerveSubsystem swerveSubsystem, int driveX, int driveY, int rotationX, int rotationY) {
+    this.swerveSubsystem = swerveSubsystem;
     this.driveX = driveX;
     this.driveY = driveY;
-    this.rotation = rotation;
+    this.rotationX = rotationX;
+    this.rotationY = rotationY;
     addRequirements();
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -26,7 +31,9 @@ public class TeleopSwerve extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    this.swerveSubsystem.drive(this.driveX, this.driveY, this.rotationX, this.rotationY);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
