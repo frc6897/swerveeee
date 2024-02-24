@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -15,8 +16,7 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.TeleopSwerve;
-import frc.robot.commands.OldTeleopSwerve;
-import frc.robot.commands.TestSwerve;
+import frc.robot.commands.DriveToDistance;
 import frc.robot.commands.TurnVoltage;
 import frc.robot.subsystems.*;
 
@@ -42,8 +42,10 @@ public class RobotContainer {
     // m_swerveSubsystem.setDefaultCommand(new TestSwerve(this.m_swerveSubsystem, 2, 3, driverGamepad::getRightY, driverGamepad::getRightX));
     //change.whileTrue(new TeleopSwerve(this.m_swerveSubsystem, driverGamepad::getLeftX, driverGamepad::getLeftY, driverGamepad::getRightX, driverGamepad::getRightY, true));
     //change.whileFalse(new TeleopSwerve(this.m_swerveSubsystem, driverGamepad::getLeftX, driverGamepad::getLeftY, driverGamepad::getRightX, driverGamepad::getRightY, false));
+    SmartDashboard.putBoolean("robot cont", true);
 
     m_swerveSubsystem.setDefaultCommand(new TeleopSwerve(this.m_swerveSubsystem, driverGamepad::getLeftX, driverGamepad::getLeftY, driverGamepad::getRightX, false));
+    shootButton.whileTrue(new DriveToDistance(this.m_swerveSubsystem, 1, 0, -1));
     // m_shoot.setDefaultCommand(new TestShoot(m_shoot));
     // m_swerveSubsystem.setDefaultCommand(new TurnVoltage(m_swerveSubsystem));
 

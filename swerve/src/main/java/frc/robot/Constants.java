@@ -15,14 +15,14 @@ public final class Constants {
     public static final double kTurnMotorGearRatio = 3;
     public static final double kWheelBase = Units.inchesToMeters(20);/* the distance between the front and rear wheels */
     public static final double kTrackWidth = Units.inchesToMeters(22); /* the distance between left and right wheels */
-    public static final double kWheelDiameter = 3;
+    public static final double kWheelDiameter = Units.inchesToMeters(3);
 
     public static final double driveVelConvFactor = 1 / (0.0381 * 2 * Math.PI);
     public static final double driveGearRatio = 3.56;
 
     // GOOD PID VALUES BUT FOR SLOW TURN
-    public static final double kP = 0.15; 
-    public static final double kI = 0.0000001;
+    public static final double kP = 0.125; 
+    public static final double kI = 0.0001;
     public static final double kD = 0;
     
     // TURN FF VALUES:

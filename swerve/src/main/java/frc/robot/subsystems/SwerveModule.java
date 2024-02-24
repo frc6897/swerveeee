@@ -74,7 +74,7 @@ public class SwerveModule extends SubsystemBase {
 
     driveEncoder = driveMotor.getEncoder();
     // driveMotor.restoreFactoryDekfaults();
-    driveEncoder.setPositionConversionFactor(1/DriveConstants.driveGearRatio);
+    driveEncoder.setPositionConversionFactor((1 / DriveConstants.driveGearRatio) * 2 * Math.PI * (DriveConstants.kWheelDiameter / 2));
 
     configureTurnMotor();
     configureDriveMotor();

@@ -12,9 +12,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SPI;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.util.SwerveUtil;
 
 public class SwerveSubsystem extends SubsystemBase {
   AHRS gyro = new AHRS(SPI.Port.kMXP);
@@ -80,16 +81,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // this.m_backRightModuleState = SwerveModuleState.optimize(swerveModuleStates[3], new Rotation2d(this.m_backRightModule.getTurnMotorPosition()));
   }
 
-  /**
-   * Move the swerve module at the desired linear and angular speed
-   * @param swerveModule swerve module
-   * @param driveSpeed drive speed
-   * @param angularSpeed angular speed
-   */
-  public void drive(SwerveModule swerveModule, double driveSpeed, double angularSpeed) {
-    swerveModule.move(driveSpeed, angularSpeed);
-  }
-
   public void setVoltage(SwerveModule swerve, double volts) {
     swerve.driveMotor.setVoltage(volts);
   }
@@ -107,6 +98,45 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public double getHeading() {
     return this.gyro.getYaw();
+  }
+
+  public void resetEncoders() {
+    this.m_frontLeftModule.driveEncoder.setPosition(0);
+    this.m_frontRightModule.driveEncoder.setPosition(0);
+    this.m_backLeftModule.driveEncoder.setPosition(0);
+    this.m_backRightModule.driveEncoder.setPosition(0);
+  }
+
+  public double getEncoderPosition() {
+    return this.m_frontLeftModule.driveEncoder.getPosition();
+  }
+
+  public void drive(double speedX, double speedY, double rotationSpeed) {
+    this.setSwerveModuleStates(speedX, speedY, rotationSpeed);
+    this.moveSwerveModules();
+  }
+  
+  public void moveSwerveModule(SwerveModuleState state, SwerveModule mod) {
+    SmartDashboard.putNumber(mod.name + " state speed: ", state.speedMetersPerSecond);
+    double driveSpeed = mod.getDriveMotorSpeed(state.speedMetersPerSecond * DriveConstants.driveVelConvFactor * 3.18 * 0.5);
+    double goalAngle = state.angle.getDegrees() + 180;
+    double ogD = goalAngle - mod.getTurnMotorPosition();
+    double d = SwerveUtil.getDisplacement(goalAngle, mod.getTurnMotorPosition());
+    if (!(Math.abs(goalAngle - mod.getTurnMotorPosition()) < 2.5)) {
+      double turnVoltage = mod.getTurnMotorSpeed(d);
+      double newDriveSpeed = Math.abs(ogD) > 90 && Math.abs(ogD) < 270 ? -driveSpeed : driveSpeed;
+      mod.move(newDriveSpeed, turnVoltage);
+    } else {
+      double turnSpeed = 0;
+      mod.move(driveSpeed, turnSpeed);
+    }
+  }
+
+  public void moveSwerveModules() {
+    moveSwerveModule(this.m_backLeftModuleState, this.m_backLeftModule);
+    moveSwerveModule(this.m_backRightModuleState, this.m_backRightModule);
+    moveSwerveModule(this.m_frontLeftModuleState, this.m_frontLeftModule);
+    moveSwerveModule(this.m_frontRightModuleState, this.m_frontRightModule);
   }
   
   @Override
