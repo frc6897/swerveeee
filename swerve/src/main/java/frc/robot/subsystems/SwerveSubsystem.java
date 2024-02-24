@@ -20,35 +20,20 @@ import frc.robot.util.SwerveUtil;
 public class SwerveSubsystem extends SubsystemBase {
   AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-  /**
-   * One swerve module consists of both a drive and turn motor
-   */
   public SwerveModule m_backLeftModule;
   public SwerveModule m_backRightModule;
   public SwerveModule m_frontLeftModule;
   public SwerveModule m_frontRightModule;
 
-  /**
-   * A swerve module state stores the speed and angle at which a wheel should be in order to reach a desired linear and angular speed
-   * One swerve module state for each swerve module
-   */
   public SwerveModuleState m_backLeftModuleState;
   public SwerveModuleState m_backRightModuleState;
   public SwerveModuleState m_frontLeftModuleState;
   public SwerveModuleState m_frontRightModuleState;
 
-  /**
-   * Store the location of each swerve module with respect to the center of the drivebase
-   */  
   Translation2d m_frontLeftLocation = new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2);
   Translation2d m_frontRightLocation = new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2);
   Translation2d m_backLeftLocation = new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2);
-  Translation2d m_backRightLocation = new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2);
-  // Translation2d m_frontLeftLocation = new Translation2d(10, -10);
-  // Translation2d m_frontRightLocation = new Translation2d(10, 10);
-  // Translation2d m_backLeftLocation = new Translation2d(-10, -10);
-  // Translation2d m_backRightLocation = new Translation2d(-10, 10);
-  
+  Translation2d m_backRightLocation = new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2);  
 
   SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
 
@@ -60,42 +45,23 @@ public class SwerveSubsystem extends SubsystemBase {
     this.m_backRightModule = new SwerveModule("Back Right: ", 6, 5, 90, DriveConstants.bRkS, DriveConstants.bRkV, DriveConstants.drivebRkS, DriveConstants.drivebRkV); 
   }
 
-  /**
-   * Takes in BOTH joystick parameters, gets the desired speed and angle for each module, optimizes the states based on current robot angle
-   * @param driveX left joystick x-axis (-1 to 1)
-   * @param driveY left joystick y-axis (-1 to 1)
-   * @param rotation rotating speed (-1 to 1)
-   */
   public void setSwerveModuleStates(double driveX, double driveY, double rotation) {
-    // ChassisSpeeds speeds = new ChassisSpeeds(driveY, -driveX, -rotation);
     ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(driveY, -driveX, -rotation, Rotation2d.fromDegrees(getHeading()));
-
     SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(speeds);
     this.m_frontLeftModuleState = swerveModuleStates[0];
     this.m_frontRightModuleState = swerveModuleStates[1];
     this.m_backLeftModuleState = swerveModuleStates[2];
     this.m_backRightModuleState = swerveModuleStates[3];    
-    // this.m_frontLeftModuleState = SwerveModuleState.optimize(swerveModuleStates[0], new Rotation2d(this.m_frontLeftModule.getTurnMotorPosition()));
-    // this.m_frontRightModuleState = SwerveModuleState.optimize(swerveModuleStates[1], new Rotation2d(this.m_frontRightModule.getTurnMotorPosition()));
-    // this.m_backLeftModuleState = SwerveModuleState.optimize(swerveModuleStates[2], new Rotation2d(this.m_backLeftModule.getTurnMotorPosition()));
-    // this.m_backRightModuleState = SwerveModuleState.optimize(swerveModuleStates[3], new Rotation2d(this.m_backRightModule.getTurnMotorPosition()));
   }
 
   public void setVoltage(SwerveModule swerve, double volts) {
     swerve.driveMotor.setVoltage(volts);
   }
 
-  /**
-   * Reset the gyro angle such that current robot angle is 0
-   */
   public void resetGyro() {
     this.gyro.reset();
   }
 
-  /**
-   * Returns the current angle of the robot
-   * @return current angle of the robot
-   */
   public double getHeading() {
     return this.gyro.getYaw();
   }
@@ -113,30 +79,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void drive(double speedX, double speedY, double rotationSpeed) {
     this.setSwerveModuleStates(speedX, speedY, rotationSpeed);
-    this.moveSwerveModules();
-  }
-  
-  public void moveSwerveModule(SwerveModuleState state, SwerveModule mod) {
-    SmartDashboard.putNumber(mod.name + " state speed: ", state.speedMetersPerSecond);
-    double driveSpeed = mod.getDriveMotorSpeed(state.speedMetersPerSecond * DriveConstants.driveVelConvFactor * 3.18 * 0.5);
-    double goalAngle = state.angle.getDegrees() + 180;
-    double ogD = goalAngle - mod.getTurnMotorPosition();
-    double d = SwerveUtil.getDisplacement(goalAngle, mod.getTurnMotorPosition());
-    if (!(Math.abs(goalAngle - mod.getTurnMotorPosition()) < 2.5)) {
-      double turnVoltage = mod.getTurnMotorSpeed(d);
-      double newDriveSpeed = Math.abs(ogD) > 90 && Math.abs(ogD) < 270 ? -driveSpeed : driveSpeed;
-      mod.move(newDriveSpeed, turnVoltage);
-    } else {
-      double turnSpeed = 0;
-      mod.move(driveSpeed, turnSpeed);
-    }
+    this.moveAllSwerveModules();
   }
 
-  public void moveSwerveModules() {
-    moveSwerveModule(this.m_backLeftModuleState, this.m_backLeftModule);
-    moveSwerveModule(this.m_backRightModuleState, this.m_backRightModule);
-    moveSwerveModule(this.m_frontLeftModuleState, this.m_frontLeftModule);
-    moveSwerveModule(this.m_frontRightModuleState, this.m_frontRightModule);
+  public void moveAllSwerveModules() {
+    SwerveUtil.moveSwerveModule(this.m_backLeftModuleState, this.m_backLeftModule);
+    SwerveUtil.moveSwerveModule(this.m_backRightModuleState, this.m_backRightModule);
+    SwerveUtil.moveSwerveModule(this.m_frontLeftModuleState, this.m_frontLeftModule);
+    SwerveUtil.moveSwerveModule(this.m_frontRightModuleState, this.m_frontRightModule);
   }
   
   @Override

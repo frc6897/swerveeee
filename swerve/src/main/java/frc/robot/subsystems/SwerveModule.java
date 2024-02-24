@@ -22,10 +22,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 
 public class SwerveModule extends SubsystemBase {
-  public String name;
+  public String m_name;
 
-  public int angleCanId;
-  public int driveCanId;
+  public int m_angleCanId;
+  public int m_driveCanId;
   
   public CANSparkMax turnMotor;
   public CANSparkMax driveMotor;
@@ -40,97 +40,73 @@ public class SwerveModule extends SubsystemBase {
 
   public SlewRateLimiter driveSlewRateLimiter = new SlewRateLimiter(5.5);
 
-  public double angleDisplacement;
+  public double m_angleDisplacement;
 
-  public double kS;
-  public double kV;
-  public double driveKS;
-  public double driveKV;
+  public double m_kS;
+  public double m_kV;
+  public double m_driveKS;
+  public double m_driveKV;
   
   public SwerveModule(String name, int angleCanId, int driveCanId, double angleDisplacement, double kS, double kV, double dKS, double dKV) {
-    this.name = name;
+    this.m_name = name;
 
-    driveKS = dKS;
-    driveKV = dKV;
+    this.m_driveKS = dKS;
+    this.m_driveKV = dKV;
 
-    this.kS = kS;
-    this.kV = kV;
+    this.m_kS = kS;
+    this.m_kV = kV;
 
-    this.angleCanId = angleCanId;
-    this.driveCanId = driveCanId;
+    this.m_angleCanId = angleCanId;
+    this.m_driveCanId = driveCanId;
 
-    this.angleDisplacement = angleDisplacement;
+    this.m_angleDisplacement = angleDisplacement;
 
     turnFF = new SimpleMotorFeedforward(kS, kV);
-    driveFF = new SimpleMotorFeedforward(driveKS, driveKV);
-
-    turnMotor = new CANSparkMax(angleCanId, MotorType.kBrushless);
-
-    driveMotor = new CANSparkMax(driveCanId, MotorType.kBrushless);
-
-    angleEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle); // type?
-    // turnMotor.restoreFactoryDefaults();
-    angleEncoder.setPositionConversionFactor(360);
-
-    driveEncoder = driveMotor.getEncoder();
-    // driveMotor.restoreFactoryDekfaults();
-    driveEncoder.setPositionConversionFactor((1 / DriveConstants.driveGearRatio) * 2 * Math.PI * (DriveConstants.kWheelDiameter / 2));
+    driveFF = new SimpleMotorFeedforward(this.m_driveKS, this.m_driveKV);
 
     configureTurnMotor();
     configureDriveMotor();
-
-    turnPIDController.reset();
-
-    angleEncoder.setVelocityConversionFactor(60);
-    driveEncoder.setVelocityConversionFactor(1/(60 * DriveConstants.driveGearRatio));
   }
 
-  /**
-   * Sets default settings for the turn motor of the swerve module
-   */
   public void configureTurnMotor() {
+    turnMotor = new CANSparkMax(this.m_angleCanId, MotorType.kBrushless);
+
+    angleEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    angleEncoder.setPositionConversionFactor(360);
+    angleEncoder.setVelocityConversionFactor(60);
+
     turnMotor.setSmartCurrentLimit(60);
     turnMotor.setInverted(false);
     turnMotor.setIdleMode(IdleMode.kBrake);
 
     turnPIDController.enableContinuousInput(0, 360);
     turnPIDController.setTolerance(2.5);
+    turnPIDController.reset();
   }
 
-  /**
-   * Sets default settings for the drive motor of the swerve module
-   */
   public void configureDriveMotor() {
+    driveMotor = new CANSparkMax(this.m_driveCanId, MotorType.kBrushless);
+
+    driveEncoder = driveMotor.getEncoder();
+    driveEncoder.setPositionConversionFactor((1 / DriveConstants.driveGearRatio) * 2 * Math.PI * (DriveConstants.kWheelDiameter / 2));
+    driveEncoder.setVelocityConversionFactor(1/(60 * DriveConstants.driveGearRatio));
+
     driveMotor.setSmartCurrentLimit(60);
     driveMotor.setInverted(false);
     driveMotor.setIdleMode(IdleMode.kBrake);
   }
 
-  /**
-   * Return the encoder value of the drive motor (how far has the wheel traveled)
-   * @return the drive encoder position (meters)
-   */
   public double getDriveMotorPosition() {
     return driveEncoder.getPosition();
   }
 
-  /**
-   * Return the encoder value of the angle motor (how much has the wheel rotated)
-   * @return the angle encoder position (0 to 360 degrees)
-   */
   public double getTurnMotorPosition() {
-    return Math.abs((angleEncoder.getPosition() + angleDisplacement) % 360);
+    return Math.abs((angleEncoder.getPosition() + this.m_angleDisplacement) % 360);
   }
 
-  /**
-   * Set the motor speed of both the drive and turn motor
-   * @param driveSpeed drive speed
-   * @param turnSpeed turn speed
-   */
   public void move(double driveVoltage, double turnVoltage) {
     driveMotor.setVoltage(MathUtil.clamp(driveVoltage, -DriveConstants.kMaxDriveVoltage, DriveConstants.kMaxDriveVoltage));
     turnMotor.setVoltage(MathUtil.clamp(turnVoltage, -DriveConstants.kMaxTurnVoltage, DriveConstants.kMaxTurnVoltage));
-    // this.turnMotor.set(turnSpeed * DriveConstants.kMaxTurnSpeed);
   }
 
   public double getDriveMotorSpeed(double speed) {
@@ -152,6 +128,5 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
   }
 }

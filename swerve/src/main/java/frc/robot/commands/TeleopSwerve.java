@@ -6,12 +6,10 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -77,17 +75,17 @@ public class TeleopSwerve extends Command {
       moveSwerveModule(this.m_swerveSubsystem.m_backRightModuleState, this.m_swerveSubsystem.m_backRightModule);
       moveSwerveModule(this.m_swerveSubsystem.m_frontLeftModuleState, this.m_swerveSubsystem.m_frontLeftModule);
       moveSwerveModule(this.m_swerveSubsystem.m_frontRightModuleState, this.m_swerveSubsystem.m_frontRightModule);
-  }
+    }
     else {
-        this.m_swerveSubsystem.m_backLeftModule.move(0, 0);
-        this.m_swerveSubsystem.m_backRightModule.move(0, 0);
-        this.m_swerveSubsystem.m_frontLeftModule.move(0, 0);
-        this.m_swerveSubsystem.m_frontRightModule.move(0, 0);
+      this.m_swerveSubsystem.m_backLeftModule.move(0, 0);
+      this.m_swerveSubsystem.m_backRightModule.move(0, 0);
+      this.m_swerveSubsystem.m_frontLeftModule.move(0, 0);
+      this.m_swerveSubsystem.m_frontRightModule.move(0, 0);
     }
   }
 
   public void moveSwerveModule(SwerveModuleState state, SwerveModule mod) {
-    SmartDashboard.putNumber(mod.name + " state speed: ", state.speedMetersPerSecond);
+    SmartDashboard.putNumber(mod.m_name + " state speed: ", state.speedMetersPerSecond);
     double driveSpeed = mod.getDriveMotorSpeed(state.speedMetersPerSecond * DriveConstants.driveVelConvFactor * 3.18 * 0.5);
     double goalAngle = state.angle.getDegrees() + 180;
     double ogD = goalAngle - mod.getTurnMotorPosition();

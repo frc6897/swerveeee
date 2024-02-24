@@ -1,5 +1,10 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.subsystems.SwerveModule;
+
 public class SwerveUtil {
 
     public static double getAngle(double xAxis, double yAxis, double yaw) {
@@ -59,4 +64,19 @@ public class SwerveUtil {
 
     }
 
+    public static void moveSwerveModule(SwerveModuleState state, SwerveModule mod) {
+        SmartDashboard.putNumber(mod.m_name + " state speed: ", state.speedMetersPerSecond);
+        double driveSpeed = mod.getDriveMotorSpeed(state.speedMetersPerSecond * DriveConstants.driveVelConvFactor * 3.18 * 0.5);
+        double goalAngle = state.angle.getDegrees() + 180;
+        double ogD = goalAngle - mod.getTurnMotorPosition();
+        double d = SwerveUtil.getDisplacement(goalAngle, mod.getTurnMotorPosition());
+        if (!(Math.abs(goalAngle - mod.getTurnMotorPosition()) < 2.5)) {
+            double turnVoltage = mod.getTurnMotorSpeed(d);
+            double newDriveSpeed = Math.abs(ogD) > 90 && Math.abs(ogD) < 270 ? -driveSpeed : driveSpeed;
+            mod.move(newDriveSpeed, turnVoltage);
+        } else {
+            double turnSpeed = 0;
+            mod.move(driveSpeed, turnSpeed);
+        }
+    }
 }
